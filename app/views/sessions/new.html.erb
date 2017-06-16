@@ -1,0 +1,21 @@
+<div id="login_form" class="jumbotron">
+  <h2>
+    <u>Log In</u>
+  </h2>
+  <p id="alert" style="color: red;">
+    <%= alert %>
+  </p>
+  <%= form_tag sessions_path do %>
+    <div class="field">
+      <%= label_tag :email %>
+      <%= text_field_tag :email, params[:email], :class => "email_input" %>
+    </div>
+    <div class="field">
+      <%= label_tag :password %>
+      <%= password_field_tag :password, params[:password],  :class => "password_input_login" %>
+    </div>
+    <div>
+      <%= submit_tag "Log In", value: "Log In", class: 'login-btn' %>
+    </div>
+  <% end %>
+</div>

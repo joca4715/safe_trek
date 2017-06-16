@@ -1,0 +1,116 @@
+<legend>
+<p style="color: #f8f8ff;">National Runaway Safeline: Help is available 24/7 at 1-800-RUNAWAY (1-800-786-2929) or via email or live chat.</p>
+<iframe
+  width="450"
+  height="300"
+  frameborder="0" style="border:0; margin: 0px auto;"
+  src="https://www.google.com/maps/embed/v1/place?key=<%= ENV['GOOGLE_MAPS_EMBED_API_KEY'] %>&q=<%= @location.address %>"/>
+</iframe>
+</legend>
+<div class="map-container jumbotron" style="background-color: #428bca">
+    <input id="origin-input" class="controls" type="text"
+        placeholder="Enter an origin location">
+
+    <input
+      id="destination-input"
+      class="controls"
+      type="text"
+      placeholder="Enter a destination location"
+    <% if @location.address %>
+      value="<%= @location.address %>"
+    <% end %>
+    >
+
+    <div id="mode-selector" class="controls">
+      <input type="radio" name="type" id="changemode-walking" checked="checked">
+      <label for="changemode-walking">Walking</label>
+
+      <input type="radio" name="type" id="changemode-transit">
+      <label for="changemode-transit">Transit</label>
+
+      <input type="radio" name="type" id="changemode-driving">
+      <label for="changemode-driving">Driving</label>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+<div class="jumbotron" style="background-color: #428bca">
+  <p>
+    <strong class="diff">Address:</strong>
+    <p class="information"><%= @location.address %></p>
+  </p>
+
+<% if @location.latitude %>
+  <p>
+    <strong class="diff">Latitude:</strong>
+    <p class="information"><%= @location.latitude.round(6) %></p>
+  </p>
+<% end %>
+
+<% if @location.longitude %>
+  <p>
+    <strong class="diff">Longitude:</strong>
+    <p class="information"><%= @location.longitude.round(6) %></p>
+  </p>
+<% end %>
+
+  <p>
+    <strong class="diff">Location Name:</strong>
+    <p class="information"><%= @location.name %></p>
+  </p>
+  <% if @location.rating != nil %>
+    <p>
+      <strong class="diff">Location Rating:</strong>
+      <p class="information"><%= @location.rating %></p>
+    </p>
+  <% end %>
+  <% if @walking_distance %>
+    <p>
+      <strong class="diff">Walking Distance:</strong>
+      <p class="information"><%= @walking_distance %></p>
+    </p>
+  <% end %>
+  <% if @bicycling_distance %>
+    <p>
+      <strong class="diff">Bicycling Distance:</strong>
+      <p class="information"><%= @bicycling_distance %></p>
+    </p>
+  <% end %>
+</div>
+
+<br>
+<% if @location.latitude && @location.longitude %>
+  <div class="jumbotron" style="background-color: #428bca">
+    <div class="google-maps">
+      <%= image_tag "https://maps.googleapis.com/maps/api/streetview?size=450x300&location=#{@location.latitude.round(6)},#{@location.longitude.round(6)}&heading=90&pitch=0&key=#{ENV["GOOGLE_STREET_VIEW_API_KEY"]}"%>
+    </div>
+  </div>
+<% end %>
+
+<br/>
+<br/>
+
+<% if current_user %>
+  <!-- Comments Section -->
+  <% @location = Location.find(params[:id]) %>
+  <h1>Leave <%= @location.name %> a comment!</h1>
+  <div class="well well-lg" style="border: solid 0px #428bca">
+      <p>
+        <%= render(partial: 'comments/comment', collection: @location.comments) %>
+      </p>
+    <!-- </div> -->
+    <div class="panel-heading">
+      <h3 class="panel-title">Add Comments</h3>
+    </div>
+    <div class="panel panel-body" style="background-color: #428bca;border: solid 0px #428bca">
+      <div>
+        <%= form_for [@location, Comment.new] do |c| %>
+          <%= c.text_area :body, placeholder: "Add a comment", autofocus: true %>
+          <br/>
+          <%= c.submit "Comment" %>
+        <% end %>
+      </div>
+  </div>
+<% end %>
+</div>

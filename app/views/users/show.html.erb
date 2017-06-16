@@ -1,0 +1,53 @@
+<!-- User Bio Section -->
+<div>
+  <h1><%= @user.name %></h1>
+  <br/>
+  <div style="background-color: lightblue" class="jumbotron">
+    <h2><%= @user.bio %></h2>
+    <!-- Couldn't get the help users features delivered in time -->
+    <!-- <p><a class="btn btn-success btn-lg" href="#" role="button">Help <%= @user.name %></a></p> -->
+  </div>
+</div>
+
+<!-- User's Local Locations -->
+<% if @suggested_locations.size > 0 %>
+  <h1>Local Locations near <%= @user.name %></h1>
+  <table class="table table-hover" cellpadding="10">
+    <tr>
+      <th>Name</th>
+      <th>Address</th>
+    </tr>
+    <% for location in @suggested_locations %>
+      <tr>
+        <td><%= link_to "#{location.name}", location, class: 'show_loc_link' %></td>
+        <td><%= link_to "#{location.address}", location_path(location.id), class: 'show_loc_link' %></td>
+      </tr>
+    <% end %>
+  </table>
+
+  <%= paginate @suggested_locations %>
+<% end %>
+
+<% if current_user %>
+  <!-- Comments Section -->
+  <% @user = User.find(params[:id]) %>
+  <h1>Leave <%= @user.name %> a comment!</h1>
+  <div class="well well-lg" style="border: solid 0px #428bca">
+      <p>
+        <%= render(partial: 'comments/comment', collection: @user.comments) %>
+      </p>
+    <!-- </div> -->
+    <div class="panel-heading">
+      <h3 class="panel-title">Add Comments</h3>
+    </div>
+    <div class="panel panel-body" style="background-color: #428bca;border: solid 0px #428bca">
+      <div>
+        <%= form_for [@user, Comment.new] do |c| %>
+          <%= c.text_area :body, placeholder: "Add a comment", autofocus: true %>
+          <br/>
+          <%= c.submit "Comment" %>
+        <% end %>
+      </div>
+  </div>
+<% end %>
+</div>

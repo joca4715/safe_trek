@@ -1,0 +1,30 @@
+<% if current_user %>
+  <div class="well" style="border: solid 0px #428bca">
+    <div>
+      <div>
+        <div class="well" style="width: auto; padding: 5px; background-color: #292c2f;">
+          <p class="comment-body" style="color: #f8f8ff;"><%= comment.body %></p>
+          <p style="color: green;"><%= comment.created_at.in_time_zone('Pacific Time (US & Canada)').strftime("%A %l:%M %P at %B %Y") %></p>
+          <p style="color: green;" class="comment-body"> from <%= link_to comment.author, user_path(comment.user_id), style: "color: white;"%></p>
+          <br/>
+          <% if comment.user_id == current_user.id %>
+            <div style="color: green">
+              <%= link_to "Delete", comment_comment_path(comment.id), method: :delete, class: "bg-success btn btn-link" %>
+              <!-- <span style="color: #f8f8ff;">|</span>
+              <a href="#" class="bg-success btn btn-link">Show Replies</a> -->
+            </div>
+          <% end %>
+          <div class="panel panel-body" style="background-color: #428bca;border: solid 0px #428bca">
+            <%= form_for [comment, Comment.new] do |c| %>
+              <%= c.text_area :body, placeholder: "Add a Reply" %><br/>
+              <%= c.submit "Reply"  %>
+            <% end %>
+          </div>
+          <div class="list-group panel panel-info" style="border: solid 0px #428bca;">
+            <%= render partial: 'comments/comment', collection: comment.comments %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

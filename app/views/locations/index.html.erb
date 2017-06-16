@@ -1,0 +1,56 @@
+<%= yield %>
+<section class="form-group align-right" style="display: block;">
+  <%= bootstrap_form_tag location: locations_path, method: :get do |p| %>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <%= p.text_field :search, placeholder: "search shelters", hide_label: true, value: params[:search], autofocus: true  %>
+  <% end %>
+
+  <%= link_to "Clear", locations_path, class: "btn btn-default" %>
+</section>
+
+<div id="locations_container">
+  <% if params[:search] %>
+    <h1 style="color: #f8f8ff;"><i class="fa fa-search" aria-hidden="true"></i> Search Results for '<%= "#{params[:search]}" %>'</h1>
+      <table class="table table-hover"cellpadding="10">
+      <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+      </tr>
+
+      <% for location in @searched_locations %>
+        <tr>
+          <td><%= link_to "#{location.name}", location, class: 'show_loc_link' %></td>
+          <td><%= link_to "#{location.address}", location, class: 'show_loc_link' %></td>
+          <td><%= location.latitude %></td>
+          <td><%= location.longitude %></td>
+        </tr>
+      <% end %>
+    </table>
+    <%= paginate @searched_locations %>
+  <% else %>
+    <h1>Local Locations</h1>
+    <table class="table table-hover"cellpadding="10">
+      <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+      </tr>
+
+      <% for location in @local_locations %>
+        <tr>
+          <td><%= link_to "#{location.name}", location, class: 'show_loc_link' %></td>
+          <td><%= link_to "#{location.address}", location, class: 'show_loc_link' %></td>
+          <td><%= location.latitude %></td>
+          <td><%= location.longitude %></td>
+        </tr>
+      <% end %>
+    </table>
+    <%= paginate @local_locations %>
+<% end %>
+</div>

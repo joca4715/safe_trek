@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Mapping Service For The Economically Underprivileged">
+    <title>Safe-Trek</title>
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <link href="http://fonts.googleapis.com/css?family=Cookie" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div class="container">
+      <nav class="navbar navbar-defualt" style="background-color: #292c2f; border-color: #292c2f;">
+        <div class="container-fluid" style="background-color: #292c2f">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+              <button class="logo_text">Safe-Trek</button>
+            </a>
+            <br/>
+          </div>
+          <ul class="nav navbar-nav navbar-brand">
+            <% if !current_user %>
+              <li style="display: inline-block; top: -8px; left: 60px;">
+                <a class="nav-links" href="/login"><i class="fa fa-lock" aria-hidden="true"></i> Login</a>
+              </li>
+              <li style="display: inline-block; top: -8px; left: 60px;">
+                <a class="nav-links" href="/users/new"><i class="fa fa-plus-square" aria-hidden="true"></i> Sign Up</a>
+              </li>
+            <% else %>
+            <li>
+              <div class="btn-group">
+                <a class="btn btn-default" href="/users/<%= current_user.id %>" type="button"><i class="fa fa-user fa-fw"></i> <%=current_user.username %></a>
+                <button class="btn btn-default dropdown-toggle dropdown-toggle-split" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="caret"></span>
+                  <span class="sr-only"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                  <li>
+                    <a class="nav-links dropdown-item" href="/locations" style="display: block; position: absolute; padding: 2px; width: 116px; text-align: center;"><i class="fa fa-home" aria-hidden="true"></i> Shelters</a>
+                  </li>
+                  <li id="nearby">
+                    <a class="nav-links dropdown-item" style="display: block; position: absolute; top: 30px; width: 116px; text-align: center; padding: 2px;" href="/nearby"><i class="fa fa-table" aria-hidden="true"></i> Nearby</a>
+                  <li class="divider" style="display: block; position: absolute; top: 50px; width: 116px;"></li>
+                  <li>
+                    <a style="display: block; position: absolute; width: 116px; text-align: center; padding: 2px; top: 65px; margin-bottom: 10px;" class="nav-links dropdown-item" href="/users/<%= current_user.id %>/edit"><i class="fa fa-pencil fa-fw"></i> Edit Profile</a>
+                  </li>
+                  <li style="display: block; position: absolute; width: 116px; text-align: center; padding: 2px; top: 90px; margin-bottom: 10px;">
+                    <%= link_to "<i class='fa fa-key fa-fw'></i> Logout".html_safe, '/logout', class: 'nav-links dropdown-item', method: :delete %></a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <% end %>
+          </ul>
+        </div>
+      </nav>
+      <%= yield %>
+    </div>
+    <script type="text/javascript">
+      function initMap() {
+        var origin_place_id = null;
+        var destination_place_id = null;
+        var travel_mode = 'WALKING';
+        var map = new google.maps.Map(document.getElementById('map'), {
+          mapTypeControl: false,
+          center: <% if current_user %>
+                    {lat: <%= @gmaps_coordinates[0] %>, lng: <%= @gmaps_coordinates[1] %>},
+                  <% elsif !current_user && @location %>
+                    {lat: <%= @location.latitude %>, lng: <%= @location.longitude %>},
+                  <% elsif !current_user && !@location %>
+                    {lat: 34.0522, lng: -118.2437},
+                  <% end %>
+          zoom: 13
+        });
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        directionsDisplay.setMap(map);
+        var origin_input = document.getElementById('origin-input');
+        var destination_input = document.getElementById('destination-input');
+        var modes = document.getElementById('mode-selector');
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(origin_input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(destination_input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(modes);
+        var origin_autocomplete = new google.maps.places.Autocomplete(origin_input);
+        origin_autocomplete.bindTo('bounds', map);
+        var destination_autocomplete =
+            new google.maps.places.Autocomplete(destination_input);
+        destination_autocomplete.bindTo('bounds', map);
+        function setupClickListener(id, mode) {
+          var radioButton = document.getElementById(id);
+          radioButton.addEventListener('click', function() {
+            travel_mode = mode;
+          });
+        }
+        setupClickListener('changemode-walking', 'WALKING');
+        setupClickListener('changemode-transit', 'TRANSIT');
+        setupClickListener('changemode-driving', 'DRIVING');
+        function expandViewportToFitPlace(map, place) {
+          if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+          } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);
+          }
+        }
+        origin_autocomplete.addListener('place_changed', function() {
+          var place = origin_autocomplete.getPlace();
+          if (!place.geometry) {
+            window.alert("Autocomplete's returned place contains no geometry");
+            return;
+          }
+          expandViewportToFitPlace(map, place);
+          origin_place_id = place.place_id;
+          route(origin_place_id, destination_place_id, travel_mode,
+                directionsService, directionsDisplay);
+        });
+        destination_autocomplete.addListener('place_changed', function() {
+          var place = destination_autocomplete.getPlace();
+          if (!place.geometry) {
+            window.alert("Autocomplete's returned place contains no geometry");
+            return;
+          }
+          expandViewportToFitPlace(map, place);
+          destination_place_id = place.place_id;
+          route(origin_place_id, destination_place_id, travel_mode,
+                directionsService, directionsDisplay);
+        });
+        function route(origin_place_id, destination_place_id, travel_mode,
+                       directionsService, directionsDisplay) {
+          if (!origin_place_id || !destination_place_id) {
+            return;
+          }
+          directionsService.route({
+            origin: {'placeId': origin_place_id},
+            destination: {'placeId': destination_place_id},
+            travelMode: travel_mode
+          }, function(response, status) {
+            if (status === 'OK') {
+              directionsDisplay.setDirections(response);
+            } else {
+              window.alert('Directions request failed due to ' + status);
+            }
+          });
+        }
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_AUTOCOMPLETE_AND_DIRECTIONS_API_KEY'] %>&libraries=places&callback=initMap"
+        async defer></script>
+
+
+    <footer class="footer-distributed">
+      <div class="footer-center">
+      <div class="footer-left">
+        <p class="footer-links"><a href="/" style="color: #f8f8ff; font: normal 36px 'Cookie', cursive; margin: 0;">Care-Safe</a></p>
+        <br/><br/>
+        <p class="footer-links">
+          <a href="/about">About</a>
+        </p>
+        <br/><br/>
+        <p class="footer-company-name">Safe-Trek © 2017</p>
+      </div>
+        <div>
+          <span class="fa fa-envelope" style="color: gold"></span>
+          <p>
+            <a href="mailto:alex1100.software@gmail.com">alex1100.software@gmail.com</a>
+          </p>
+        </div>
+        <div class="footer-right">
+          <div class="footer-icons">
+            <a href="https://www.facebook.com/alex1100.software">
+              <span class="fa fa-facebook"></span>
+            </a>
+            <a href="https://www.linkedin.com/in/alex1100">
+              <span class="fa fa-linkedin"></span>
+            </a>
+            <a href="https://www.github.com/Alex1100">
+              <span class="fa fa-github"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
