@@ -26,6 +26,7 @@ communicate with online.</i>
 - Google Street View API
 - Google Places API
 - Google Autocomplete and Directions API
+- Google Maps API
 - Bootstrap
 - PostgreSQL
 - jQuery
