@@ -21,7 +21,7 @@ communicate with online.</i>
 
 ### ERD
 
-- ![screenshot](erd.pdf)
+[[ERD|erd.pdf]]
 
 # Technologies Used
 
