@@ -37,6 +37,10 @@ gem 'bootstrap-sass', '~> 3.2.0'
 gem 'bootstrap_form'
 gem 'brakeman'
 
+group :development do
+  gem 'rails-erd'
+end
+
 gem 'kaminari', '~> 0.17.0'
 gem 'gmaps4rails', '~> 1.5', '>= 1.5.6'
 gem 'geocoder', '~> 1.3', '>= 1.3.7'

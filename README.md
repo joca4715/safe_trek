@@ -18,6 +18,11 @@ communicate with online.</i>
 
 - <a href="http://www.kingsleyijomah.com/">Kingsley Ijomah</a>
 
+
+### ERD
+
+- ![screenshot](erd.pdf)
+
 # Technologies Used
 
 - Ruby on Rails
