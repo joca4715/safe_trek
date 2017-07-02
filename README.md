@@ -27,8 +27,6 @@ communicate with online.</i>
     </embed>
 </object>
 
-- ![screenshot](erd.pdf)
-
 # Technologies Used
 
 - Ruby on Rails
