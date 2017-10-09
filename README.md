@@ -1,4 +1,4 @@
-# <a href="https://safe-trek-v2.herokuapp.com/">Safe Trek</a>
+# <a href="https://safe-treck.herokuapp.com/">Safe Trek</a>
 
 <i>A Mapping service for the inner cities underprivileged.
 This application will provide the homeless and economically 
